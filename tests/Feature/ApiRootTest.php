@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Enums\RootResponses;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ApiRootTest extends TestCase

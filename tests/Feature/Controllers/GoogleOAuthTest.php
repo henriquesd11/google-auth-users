@@ -5,7 +5,7 @@ namespace Controllers;
 use App\Enums\GoogleResponses;
 use App\Models\PendingUsers;
 use App\Services\GoogleAuthService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Mockery;
@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 class GoogleOAuthTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_redirect_to_google(): void
     {

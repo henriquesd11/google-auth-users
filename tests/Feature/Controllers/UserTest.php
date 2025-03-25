@@ -6,14 +6,14 @@ use App\Enums\UserResponses;
 use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
 use Mockery;
 use Tests\TestCase;
 
 class UserTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     private UserService $mockedUserService;
 
