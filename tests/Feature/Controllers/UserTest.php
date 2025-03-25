@@ -51,7 +51,7 @@ class UserTest extends TestCase
     public function test_it_should_create_a_user(): void
     {
         $userData = collect([
-            'nameas' => 'John Doe',
+            'name' => 'John Doe',
             'cpf' => '12345678901',
             'birth_date' => '1990-01-01',
             'email' => 'john@example.com',
