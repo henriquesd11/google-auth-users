@@ -11,6 +11,7 @@ class User extends Model
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'id',
         'name',
         'email',
         'cpf',

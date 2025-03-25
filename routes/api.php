@@ -1,12 +1,13 @@
 <?php
 
+use App\Enums\RootResponses;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GoogleOAuthController;
 use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return response()->json([
-        'message' => 'Welcome to Laravel API Starter',
+        'message' => RootResponses::WELCOME,
     ]);
 });
 
