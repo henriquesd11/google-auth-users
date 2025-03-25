@@ -2,44 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\UserRepository;
+use App\Services\GoogleAuthService;
+use Illuminate\Http\Response;
 use Laravel\Socialite\Facades\Socialite;
+use App\Enums\GoogleResponses;
+use Illuminate\Http\JsonResponse;
 
 class GoogleOAuthController extends Controller
 {
-    private UserRepository $userRepository;
+    private GoogleAuthService $googleAuthService;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(GoogleAuthService $googleAuthService)
     {
-        $this->userRepository = $userRepository;
+        $this->googleAuthService = $googleAuthService;
     }
 
-    public function redirectToGoogle()
+    public function redirectToGoogle(): JsonResponse
     {
         return response()->json([
-            'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl()
+            'url' => Socialite::driver('google')
+                ->stateless()
+                ->redirect()
+                ->getTargetUrl()
         ]);
     }
 
-    public function handleGoogleCallback()
+    public function callback(): JsonResponse
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-//            // Apenas armazenamos os dados no banco e retornamos uma resposta JSON
-//            $user = $this->userRepository->createUserFromGoogle($googleUser);
+            $user = $this->googleAuthService->handleGoogleCallback($googleUser);
 
             return response()->json([
-                'message' => 'Usuário salvo com sucesso!',
-                'user' => $googleUser->user
+                'message' => GoogleResponses::SUCCESS,
+                'pending_user' => $user->only(['email', 'google_id']),
             ]);
         } catch (\Exception $e) {
             return response()->json(
                 [
-                    'error' => 'Erro na integração com o Google',
+                    'error' =>  GoogleResponses::ERROR_INTEGRATION,
                     'message' => $e->getMessage()
                 ]
-                ,500);
+                ,$e->getCode() ?? Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

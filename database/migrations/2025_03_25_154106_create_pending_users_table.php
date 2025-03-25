@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('pending_users', function (Blueprint $table) {
             $table->id();
-            $table->string('google_id')
-                ->nullable(false)
-                ->unique();
+            $table->string('google_id')->nullable(false)->unique();
             $table->text('google_token')->nullable(false);
-            $table->string('name')->nullable(false);
-            $table->string('email')->nullable(false);
-            $table->string('cpf', 14)->nullable(false);
-            $table->date('birth_date')->nullable(false);
+            $table->string('email')->nullable(false)->unique();
             $table->timestamps();
         });
     }
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('pending_users');
     }
 };

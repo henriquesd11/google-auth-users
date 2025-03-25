@@ -12,8 +12,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->use((array)RedirectNotFoundMiddleware::class);
+        $middleware->use([
+            \App\Http\Middleware\RedirectNotFoundMiddleware::class, // Certifique-se de que essa classe existe
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+        $exceptions->renderable(function (\Illuminate\Validation\ValidationException $exception) {
+            return response()->json([
+                'errors' => $exception->errors(),
+                'message' => $exception->getMessage(),
+            ], 422);
+        });
+    })
+    ->create();
