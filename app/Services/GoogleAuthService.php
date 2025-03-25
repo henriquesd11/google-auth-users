@@ -52,7 +52,7 @@ class GoogleAuthService
         $pendingUser = $this->userRepository->findPendingUserByGoogleIdOrEmail($socialiteUser->id, $socialiteUser->email);
 
         if ($pendingUser) {
-            return $this->userRepository->updatePendingUserToken($pendingUser, $socialiteUser->token);
+            return $this->userRepository->updatePendingUserToken($pendingUser, $socialiteUser->id, $socialiteUser->token);
         }
 
         return null;

@@ -65,11 +65,12 @@ class UserRepositoryTest extends TestCase
             'google_token' => 'old-token',
         ]);
 
-        $updatedUser = $this->userRepository->updatePendingUserToken($pendingUser, 'new-token');
+        $updatedUser = $this->userRepository
+            ->updatePendingUserToken($pendingUser, 'google7898', 'new-token');
 
         $this->assertEquals($pendingUser->id, $updatedUser->id);
-        $this->assertEquals(Crypt::encryptString('new-token'), $updatedUser->google_token);
-        $this->assertEquals(Crypt::encryptString('google789'), $updatedUser->google_id);
+        $this->assertEquals('google7898', Crypt::decryptString($updatedUser->google_id));
+        $this->assertEquals('new-token', Crypt::decryptString($updatedUser->google_token));
     }
 }
 

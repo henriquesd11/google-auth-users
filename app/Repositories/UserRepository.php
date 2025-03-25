@@ -20,12 +20,12 @@ class UserRepository
         return PendingUsers::where('google_id', $googleId)->orWhere('email', $email)->first();
     }
 
-    public function updatePendingUserToken(PendingUsers $pendingUser, string $token): PendingUsers
+    public function updatePendingUserToken(PendingUsers $pendingUser, string $googleId, string $googleToken): PendingUsers
     {
         $pendingUser->update(
             [
-                'google_token' => Crypt::encryptString($token),
-                'google_id' => Crypt::encryptString($pendingUser->google_id),
+                'google_token' => Crypt::encryptString($googleToken),
+                'google_id' => Crypt::encryptString($googleId),
             ]
         );
 
