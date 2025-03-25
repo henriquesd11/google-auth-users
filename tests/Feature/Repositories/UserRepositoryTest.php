@@ -2,10 +2,11 @@
 
 namespace Tests\Feature\Repositories;
 
+use App\Models\PendingUsers;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Crypt;
 use Tests\TestCase;
 
 class UserRepositoryTest extends TestCase
@@ -22,7 +23,6 @@ class UserRepositoryTest extends TestCase
 
     public function test_find_user_by_google_id_or_email()
     {
-        // Cria um usuário no banco
         $this->userRepository->create(
             [
                 'name' => 'Teste',
@@ -34,12 +34,42 @@ class UserRepositoryTest extends TestCase
             ]
         );
 
-        // Testa a função
         $result = $this->userRepository->findUserByGoogleIdOrEmail('google123', 'henr@teste.com');
 
         $this->assertNotNull($result);
         $this->assertEquals('henr@teste.com', $result->email);
         $this->assertEquals('google123', $result->google_id);
+    }
+
+    public function test_find_pending_user_by_google_id_or_email()
+    {
+        $pendingUser = PendingUsers::create([
+            'email' => 'henr@teste.com',
+            'google_id' => 'google456',
+            'google_token' => encrypt('some-token'),
+        ]);
+
+        $result = $this->userRepository->findPendingUserByGoogleIdOrEmail('google456', 'henr@teste.com');
+
+        $this->assertNotNull($result);
+        $this->assertEquals('henr@teste.com', $result->email);
+        $this->assertEquals('google456', $result->google_id);
+        $this->assertEquals($pendingUser->id, $result->id);
+    }
+
+    public function test_update_pending_user_token()
+    {
+        $pendingUser = PendingUsers::create([
+            'email' => 'henr@teste.com',
+            'google_id' => 'google789',
+            'google_token' => 'old-token',
+        ]);
+
+        $updatedUser = $this->userRepository->updatePendingUserToken($pendingUser, 'new-token');
+
+        $this->assertEquals($pendingUser->id, $updatedUser->id);
+        $this->assertEquals(Crypt::encryptString('new-token'), $updatedUser->google_token);
+        $this->assertEquals(Crypt::encryptString('google789'), $updatedUser->google_id);
     }
 }
 
