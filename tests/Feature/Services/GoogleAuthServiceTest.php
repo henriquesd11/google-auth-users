@@ -39,7 +39,7 @@ class GoogleAuthServiceTest extends TestCase
         $socialiteUser->id = 'google123';
         $socialiteUser->email = 'newuser@example.com';
         $socialiteUser->token = 'new-token';
-
+        $user = PendingUsers::factory()->count(1)->make();
         $this->userRepository->shouldReceive('findUserByGoogleIdOrEmail')
             ->with('google123', 'newuser@example.com')
             ->once()
@@ -51,16 +51,12 @@ class GoogleAuthServiceTest extends TestCase
         $this->userRepository->shouldReceive('createPendingUser')
             ->with($socialiteUser)
             ->once()
-            ->andReturn(PendingUsers::create([
-                'email' => 'newuser@example.com',
-                'google_id' => encrypt('google123'),
-                'google_token' => encrypt('new-token'),
-            ]));
+            ->andReturn($user->first());
 
         $result = $this->googleAuthService->handleGoogleCallback($socialiteUser);
 
         $this->assertInstanceOf(PendingUsers::class, $result);
-        $this->assertEquals('newuser@example.com', $result->email);
+        $this->assertEquals($user->first()->email, $result->email);
     }
 
     public function test_handle_google_callback_throws_exception_when_user_exists()
@@ -70,14 +66,7 @@ class GoogleAuthServiceTest extends TestCase
         $socialiteUser->email = 'teste@example.com';
         $socialiteUser->token = 'existing-token';
 
-        $user = User::create([
-            'name' => 'teste',
-            'email' => 'teste@example.com',
-            'google_id' => 'google456',
-            'google_token' => 'existing-token',
-            'cpf' => '08080808080',
-            'birth_date' => '1990-01-01',
-        ]);
+        $user = User::factory()->create();
 
         $this->userRepository->shouldReceive('findUserByGoogleIdOrEmail')
             ->with('google456', 'teste@example.com')

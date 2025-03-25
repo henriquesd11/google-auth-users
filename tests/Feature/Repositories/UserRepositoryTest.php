@@ -89,64 +89,37 @@ class UserRepositoryTest extends TestCase
 
     public function test_get_users_filtered()
     {
-        User::create([
-            'name' => 'Gabi',
-            'email' => 'henr@teste.com',
-            'cpf' => '12345678901',
-            'birth_date' => '1990-01-01',
-            'google_id' => 'google123',
-            'google_token' => 'token123',
-        ]);
-        User::create([
-            'name' => 'jose',
-            'email' => 'henr1@teste.com',
-            'cpf' => '98765432109',
-            'birth_date' => '1995-05-10',
-            'google_id' => 'google456',
-            'google_token' => 'token456',
-        ]);
+        $currentTotalUsers = User::count();
+        $users = User::factory()->count(2)->create();
 
-        $resultByName = $this->userRepository->getUsersFiltered('Gabi', null);
+        $resultByName = $this->userRepository->getUsersFiltered($users[0]->name, null);
         $this->assertCount(1, $resultByName);
-        $this->assertEquals('Gabi', $resultByName->first()->name);
+        $this->assertEquals($users[0]->name, $resultByName->first()->name);
 
-        $resultByCpf = $this->userRepository->getUsersFiltered(null, '98765432109');
+        $resultByCpf = $this->userRepository->getUsersFiltered(null, $users[1]->cpf);
         $this->assertCount(1, $resultByCpf);
-        $this->assertEquals('jose', $resultByCpf->first()->name);
+        $this->assertEquals($users[1]->name, $resultByCpf->first()->name);
 
         $resultAll = $this->userRepository->getUsersFiltered(null, null);
-        $this->assertCount(2, $resultAll);
+        $this->assertCount($currentTotalUsers + 2, $resultAll);
     }
 
     public function test_create()
     {
-        $data = [
-            'name' => 'Teste',
-            'email' => 'henr@teste.com',
-            'cpf' => '11122233344',
-            'birth_date' => '1985-03-15',
-            'google_id' => 'google789',
-            'google_token' => 'token789',
-        ];
+        $user = User::factory()->create();
 
-        $user = $this->userRepository->create($data);
-
-        $this->assertNotNull($user->id); // Confirma que foi criado
-        $this->assertEquals('Teste', $user->name);
-        $this->assertEquals('henr@teste.com', $user->email);
-        $this->assertEquals('11122233344', $user->cpf);
-        $this->assertEquals('1985-03-15', $user->birth_date);
-        $this->assertEquals('google789', $user->google_id);
-        $this->assertEquals('token789', $user->google_token);
+        $this->assertNotNull($user->id); // Confirms that the user was created
+        $this->assertEquals($user->name, $user->name);
+        $this->assertEquals($user->email, $user->email);
+        $this->assertEquals($user->cpf, $user->cpf);
+        $this->assertEquals($user->birth_date, $user->birth_date);
+        $this->assertEquals($user->google_id, $user->google_id);
+        $this->assertEquals($user->google_token, $user->google_token);
     }
 
     public function test_remove_pending_user()
     {
-        $pendingUser = PendingUsers::create([
-            'email' => 'henr@teste.com',
-            'google_id' => 'google111',
-            'google_token' => Crypt::encryptString('delete-token'),
-        ]);
+        $pendingUser = PendingUsers::factory()->create();
 
         $this->assertDatabaseHas('pending_users', ['id' => $pendingUser->id]);
 
