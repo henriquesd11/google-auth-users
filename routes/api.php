@@ -16,7 +16,6 @@ Route::get('/2', function () {
         'message' => RootResponses::WELCOME,
     ]);
 });
-
 Route::group(['prefix' => 'google'], function () {
     Route::get('/login', [GoogleOAuthController::class, 'redirectToGoogle']);
     Route::get('/callback', [GoogleOAuthController::class, 'callback']);
