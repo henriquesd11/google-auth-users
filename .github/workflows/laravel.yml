@@ -1,0 +1,49 @@
+name: Laravel CI
+
+# Define quando a pipeline será executada
+on:
+  push:
+    branches: [ main ] # Ajuste para o nome da sua branch principal (ex.: master)
+  pull_request:
+    branches: [ main ] # Executa também em pull requests para a branch principal
+
+# Define os jobs (tarefas) da pipeline
+jobs:
+  laravel-tests:
+    # Define o ambiente onde o job será executado
+    runs-on: ubuntu-latest
+
+    # Passos a serem executados no job
+    steps:
+      # Faz checkout do código do repositório
+      - uses: actions/checkout@v4
+
+      # Configura o PHP com a versão desejada
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3' # Ajuste para a versão do PHP que seu projeto usa
+          extensions: mbstring, pdo_sqlite # Extensões necessárias para o Laravel
+
+      # Instala as dependências do Composer
+      - name: Install Composer Dependencies
+        run: composer install --no-progress --no-interaction --prefer-dist
+
+      # Copia o arquivo .env.example para .env
+      - name: Copy .env
+        run: cp .env.example .env
+
+      # Gera a chave da aplicação
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      # Define permissões para pastas (se necessário)
+      - name: Set Directory Permissions
+        run: chmod -R 755 storage bootstrap/cache
+
+      # Executa os testes com PHPUnit
+      - name: Run Tests
+        env:
+          DB_CONNECTION: sqlite # Usa SQLite em memória para testes
+          DB_DATABASE: ':memory:' # Banco em memória
+        run: vendor/bin/phpunit
