@@ -11,12 +11,6 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/22', function () {
-    return response()->json([
-        'message' => RootResponses::WELCOME,
-    ]);
-});
-
 Route::group(['prefix' => 'google'], function () {
     Route::get('/login', [GoogleOAuthController::class, 'redirectToGoogle']);
     Route::get('/callback', [GoogleOAuthController::class, 'callback']);
