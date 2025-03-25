@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('google_id')
+            $table->text('google_id')
                 ->nullable(false)
                 ->unique();
             $table->text('google_token')->nullable(false);

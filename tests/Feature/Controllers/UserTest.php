@@ -28,22 +28,19 @@ class UserTest extends TestCase
 
     public function test_it_should_list_users(): void
     {
-        // Simulando retorno de usuários sem acessar o banco
         $fakeUsers = new Collection([
-            ['name' => 'John Doe', 'cpf' => '12345678901'],
-            ['name' => 'Jane Doe', 'cpf' => '98765432100'],
+            ['name' => 'Luiz', 'cpf' => '12345678901'],
+            ['name' => 'Luiz Henrique', 'cpf' => '98765432100'],
         ]);
 
         $this->mockedUserService
             ->shouldReceive('listUsers')
             ->once()
-            ->with('John Doe', '12345678901')
+            ->with('Luiz', '12345678901')
             ->andReturn($fakeUsers);
 
-        // Fazendo a requisição
-        $response = $this->getJson('/api/users?name=John Doe&cpf=12345678901');
+        $response = $this->getJson('/api/users?name=Luiz&cpf=12345678901');
 
-        // Verificando resposta
         $response->assertStatus(200)
             ->assertContent(json_encode(['data' => $fakeUsers]));
     }
@@ -51,10 +48,10 @@ class UserTest extends TestCase
     public function test_it_should_create_a_user(): void
     {
         $userData = collect([
-            'name' => 'John Doe',
+            'name' => 'Luiz Teste',
             'cpf' => '12345678901',
             'birth_date' => '1990-01-01',
-            'email' => 'john@example.com',
+            'email' => 'luiz@teste.com',
             'google_id' => 'google123',
         ]);
 

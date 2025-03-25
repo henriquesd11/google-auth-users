@@ -41,7 +41,7 @@ class GoogleOAuthTest extends TestCase
         // 1️⃣ Mock do usuário retornado pelo Google
         $mockedGoogleUser = Mockery::mock(SocialiteUser::class);
         $mockedGoogleUser->id = 'google123';
-        $mockedGoogleUser->email = 'user@example.com';
+        $mockedGoogleUser->email = 'teste@teste.com';
         $mockedGoogleUser->token = 'mocked_token';
 
         // 2️⃣ Mock do Socialite para retornar o usuário falso
@@ -50,7 +50,7 @@ class GoogleOAuthTest extends TestCase
 
         // 3️⃣ Mock do GoogleAuthService para retornar um usuário pendente fake
         $mockedPendingUser = new PendingUsers([
-            'email' => 'user@example.com',
+            'email' => 'teste@teste.com',
             'google_id' => 'google123',
         ]);
 
@@ -70,7 +70,7 @@ class GoogleOAuthTest extends TestCase
             ->assertJson([
                 'message' => GoogleResponses::SUCCESS,
                 'pending_user' => [
-                    'email' => 'user@example.com',
+                    'email' => 'teste@teste.com',
                     'google_id' => 'google123',
                 ],
             ]);
