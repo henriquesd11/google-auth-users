@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pending_users', function (Blueprint $table) {
             $table->id();
-            $table->text('google_id')->nullable(false)->unique();
+            $table->text('google_id')->nullable(false);
             $table->text('google_token')->nullable(false);
             $table->string('email')->nullable(false)->unique();
             $table->timestamps();
