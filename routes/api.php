@@ -11,7 +11,7 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/2', function () {
+Route::get('/22', function () {
     return response()->json([
         'message' => RootResponses::WELCOME,
     ]);
