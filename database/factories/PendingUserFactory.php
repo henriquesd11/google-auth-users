@@ -7,19 +7,21 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
  */
-class UserFactory extends Factory
+class PendingUserFactory extends Factory
 {
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
             'google_id' => Crypt::encryptString(Str::random(10)),
+            'email' => $this->faker->unique()->safeEmail,
             'google_token' => Crypt::encryptString(Str::random(10)),
-            'birth_date' => $this->faker->date(),
-            'cpf' => $this->faker->unique()->numerify('###########'),
         ];
     }
 }
