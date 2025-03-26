@@ -16,7 +16,7 @@ return [
     */
 
     'paths' => ['api/*'], // Aplica CORS às rotas da API
-    'allowed_methods' => ['*'], // Permite todos os métodos (GET, POST, etc.)
+    'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'], // Permite todos os métodos (GET, POST, etc.)
     'allowed_origins' => ['http://localhost:5173'], // Origem do frontend Vue.js
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'], // Permite todos os cabeçalhos

@@ -43,10 +43,12 @@ class GoogleAuthService
 
     private function ifPendingUserExists(SocialiteUser $socialiteUser): ?PendingUsers
     {
-        $pendingUser = $this->userRepository->findPendingUserByGoogleIdOrEmail($socialiteUser->id, $socialiteUser->email);
+        $pendingUser = $this->userRepository
+            ->findPendingUserByGoogleIdOrEmail($socialiteUser->id, $socialiteUser->email);
 
         if ($pendingUser) {
-            return $this->userRepository->updatePendingUserToken($pendingUser, $socialiteUser->id, $socialiteUser->token);
+            return $this->userRepository
+                ->updatePendingUserToken($pendingUser, $socialiteUser->id, $socialiteUser->token);
         }
 
         return null;
