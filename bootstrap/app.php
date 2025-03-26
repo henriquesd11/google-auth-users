@@ -13,9 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->use([
-            \App\Http\Middleware\RedirectNotFoundMiddleware::class,
-            \Illuminate\Http\Middleware\HandleCors::class,
+            \App\Http\Middleware\RedirectNotFoundMiddleware::class
         ]);
+
+        $middleware->append(\App\Http\Middleware\Cors::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->renderable(function (\Illuminate\Validation\ValidationException $exception) {

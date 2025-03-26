@@ -21,7 +21,8 @@ class GoogleOAuthTest extends TestCase
         $mockedSocialite = Mockery::mock('Laravel\Socialite\Contracts\Provider');
         $mockedSocialite->shouldReceive('stateless')->andReturnSelf();
         $mockedSocialite->shouldReceive('redirect')->andReturnSelf();
-        $mockedSocialite->shouldReceive('getTargetUrl')->andReturn('https://accounts.google.com/o/oauth2/auth?mocked_url');
+        $mockedSocialite->shouldReceive('getTargetUrl')
+            ->andReturn('https://accounts.google.com/o/oauth2/auth?mocked_url');
 
         // Substitui o Socialite pelo mock
         Socialite::shouldReceive('driver')->with('google')->andReturn($mockedSocialite);
@@ -67,7 +68,13 @@ class GoogleOAuthTest extends TestCase
 
         // 5️⃣ Valida se a resposta está correta
         $response->assertStatus(Response::HTTP_FOUND)
-            ->assertRedirect('http://localhost:5173/register?' . http_build_query($mockedPendingUser->toArray()));
+            ->assertRedirect(
+                'http://localhost:5173/register?' . http_build_query($mockedPendingUser->only(
+                    [
+                        'email', 'google_id'
+                    ])
+                )
+            );
     }
 
 }
