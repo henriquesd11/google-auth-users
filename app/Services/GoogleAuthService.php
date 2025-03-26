@@ -19,12 +19,13 @@ class GoogleAuthService
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * @throws Exception
-     */
     public function handleGoogleCallback(SocialiteUser $socialiteUser): User | PendingUsers
     {
-        $this->ifUserExists($socialiteUser);
+        $user = $this->ifUserExists($socialiteUser);
+
+        if ($user) {
+            return $user;
+        }
 
         $pendingUser = $this->ifPendingUserExists($socialiteUser);
 
@@ -35,16 +36,9 @@ class GoogleAuthService
         return $this->userRepository->createPendingUser($socialiteUser);
     }
 
-    /**
-     * @throws Exception
-     */
-    private function ifUserExists(SocialiteUser $socialiteUser): void
+    private function ifUserExists(SocialiteUser $socialiteUser): ?User
     {
-        $user = $this->userRepository->findUserByGoogleIdOrEmail($socialiteUser->id, $socialiteUser->email);
-
-        if ($user) {
-            throw new Exception(UserResponses::ALREADY_EXIST->value, Response::HTTP_CONFLICT);
-        }
+        return $this->userRepository->findUserByGoogleIdOrEmail($socialiteUser->id, $socialiteUser->email);
     }
 
     private function ifPendingUserExists(SocialiteUser $socialiteUser): ?PendingUsers

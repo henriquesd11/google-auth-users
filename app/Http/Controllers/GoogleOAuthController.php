@@ -34,9 +34,16 @@ class GoogleOAuthController extends Controller
 
             $user = $this->googleAuthService->handleGoogleCallback($googleUser);
 
-            $redirectUrl = 'http://localhost:5173/register?' . http_build_query($user->toArray());
+            $query = http_build_query($user->only(['email', 'google_id']));
+            $endpoint = '/register?' . $query;
+            if ($user instanceof \App\Models\User) {
 
-            return redirect($redirectUrl);
+                $endpoint = '/users';
+            }
+
+            return redirect(
+                env('FRONTEND_URL') . $endpoint
+            );
         } catch (\Exception $e) {
             return response()->json(
                 [

@@ -73,16 +73,11 @@ class GoogleAuthServiceTest extends TestCase
             ->once()
             ->andReturn($user);
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage(UserResponses::ALREADY_EXIST->value);
-        $this->expectExceptionCode(Response::HTTP_CONFLICT);
+        $result = $this->googleAuthService->handleGoogleCallback($socialiteUser);
 
-        $this->googleAuthService->handleGoogleCallback($socialiteUser);
+        $this->assertInstanceOf(User::class, $result);
     }
 
-    /**
-     * @throws \Exception
-     */
     public function test_handle_google_callback_updates_pending_user_when_pending_user_exists()
     {
         $socialiteUser = new SocialiteUser();
