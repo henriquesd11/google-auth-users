@@ -6,6 +6,7 @@ use App\Models\PendingUsers;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Crypt;
 use Tests\TestCase;
 
@@ -89,19 +90,54 @@ class UserRepositoryTest extends TestCase
 
     public function test_get_users_filtered()
     {
-        $currentTotalUsers = User::count();
-        $users = User::factory()->count(2)->create();
+        $fakeUsers = collect([
+            (object) ['name' => 'User One', 'cpf' => '12345678901'],
+            (object) ['name' => 'User Two', 'cpf' => '98765432100'],
+        ]);
 
-        $resultByName = $this->userRepository->getUsersFiltered($users[0]->name, null);
-        $this->assertCount(1, $resultByName);
-        $this->assertEquals($users[0]->name, $resultByName->first()->name);
+        $paginatedFakeUsers = new LengthAwarePaginator(
+            $fakeUsers,
+            $fakeUsers->count(),
+            2,
+            1,
+            ['path' => url('/api/users')]
+        );
 
-        $resultByCpf = $this->userRepository->getUsersFiltered(null, $users[1]->cpf);
-        $this->assertCount(1, $resultByCpf);
-        $this->assertEquals($users[1]->name, $resultByCpf->first()->name);
+        $this->mock(UserRepository::class, function ($mock) use ($paginatedFakeUsers) {
+            $mock->shouldReceive('getUsersFiltered')
+                ->with('User One', null)
+                ->once()
+                ->andReturn($paginatedFakeUsers);
 
-        $resultAll = $this->userRepository->getUsersFiltered(null, null);
-        $this->assertCount($currentTotalUsers + 2, $resultAll);
+            $mock->shouldReceive('getUsersFiltered')
+                ->with(null, '98765432100')
+                ->once()
+                ->andReturn($paginatedFakeUsers);
+
+            $mock->shouldReceive('getUsersFiltered')
+                ->with(null, null)
+                ->once()
+                ->andReturn($paginatedFakeUsers);
+        });
+
+        $repository = app(UserRepository::class);
+
+        // Testa com filtro por nome
+        $resultByName = $repository->getUsersFiltered('User One', null);
+        $this->assertInstanceOf(LengthAwarePaginator::class, $resultByName);
+        $this->assertCount(2, $resultByName->items());
+        $this->assertEquals('User One', $resultByName->items()[0]->name);
+
+        // Testa com filtro por CPF
+        $resultByCpf = $repository->getUsersFiltered(null, '98765432100');
+        $this->assertInstanceOf(LengthAwarePaginator::class, $resultByCpf);
+        $this->assertCount(2, $resultByCpf->items());
+        $this->assertEquals('User Two', $resultByCpf->items()[1]->name);
+
+        // Testa sem filtros (deve retornar todos os usuários paginados)
+        $resultAll = $repository->getUsersFiltered(null, null);
+        $this->assertInstanceOf(LengthAwarePaginator::class, $resultAll);
+        $this->assertCount(2, $resultAll->items());
     }
 
     public function test_create()

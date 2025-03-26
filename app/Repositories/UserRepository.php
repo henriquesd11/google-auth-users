@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Models\PendingUsers;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Crypt;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
@@ -41,11 +41,12 @@ class UserRepository
         ]);
     }
 
-    public function getUsersFiltered(?string $name, ?string $cpf): Collection
+    public function getUsersFiltered(?string $name, ?string $cpf, int $perPage = 10): LengthAwarePaginator
     {
         return User::when($name, fn ($query) => $query->where('name', 'LIKE', "%$name%"))
             ->when($cpf, fn ($query) => $query->where('cpf', $cpf))
-            ->get();
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
     }
 
     public function create(array $data): User

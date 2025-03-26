@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Repositories\UserRepository;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class UserService
 {
@@ -15,9 +15,9 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-    public function listUsers(?string $name = null, ?string $cpf = null): Collection
+    public function listUsers(?string $name = null, ?string $cpf = null, int $perPage = 10): LengthAwarePaginator
     {
-        return $this->userRepository->getUsersFiltered($name, $cpf);
+        return $this->userRepository->getUsersFiltered($name, $cpf, $perPage);
     }
 
     public function createUser(array $data): User
