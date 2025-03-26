@@ -27,17 +27,16 @@ class GoogleOAuthController extends Controller
         ]);
     }
 
-    public function callback(): JsonResponse
+    public function callback(): JsonResponse | \Illuminate\Http\RedirectResponse
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
             $user = $this->googleAuthService->handleGoogleCallback($googleUser);
 
-            return response()->json([
-                'message' => GoogleResponses::SUCCESS,
-                'pending_user' => $user->only(['email', 'google_id']),
-            ]);
+            $redirectUrl = 'http://localhost:5173/register?' . http_build_query($user->toArray());
+
+            return redirect($redirectUrl);
         } catch (\Exception $e) {
             return response()->json(
                 [
