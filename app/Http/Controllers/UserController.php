@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserResponses;
+use App\Http\Requests\StoreUserRequest;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,22 +20,18 @@ class UserController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $users = $this->userService->listUsers($request->get('name'), $request->get('cpf'));
+        $users = $this->userService->listUsers(
+            $request->get('name'),
+            $request->get('cpf'),
+            $request->get('per_page', 10)
+        );
 
         return response()->json(['data' => $users]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string',
-            'cpf' => 'required|string|size:11|unique:users,cpf',
-            'birth_date' => 'required|date_format:Y-m-d',
-            'email' => 'required|email|unique:users,email',
-            'google_id' => 'required|string|unique:users,google_id',
-        ]);
-
-        $user = $this->userService->createUser($validatedData);
+        $user = $this->userService->createUser($request->validated());
 
         return response()->json([
             'message' => UserResponses::CREATED,

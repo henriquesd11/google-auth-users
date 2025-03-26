@@ -2,11 +2,10 @@
 
 namespace Services;
 
-use App\Models\PendingUsers;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Services\UserService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery;
 use Tests\TestCase;
@@ -31,41 +30,46 @@ class UserServiceTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_list_users_returns_filtered_collection()
+    public function test_list_users_returns_paginated_response()
     {
-        // Cria usuários no banco
-        $currentTotal = User::count();
-        $users = User::factory()->count(2)->create();
+        $users = User::factory()->count(5)->make();
+        $paginatedUsers = new \Illuminate\Pagination\LengthAwarePaginator(
+            $users,
+            $users->count(),
+            2,
+            1,
+            ['path' => url('/api/users')]
+        );
 
-        // Mock do UserRepository
+        // Mock do UserRepository para a listagem paginada
         $this->userRepository->shouldReceive('getUsersFiltered')
-            ->with($users[0]->name, null)
+            ->with('Test Name', null, 2)
             ->once()
-            ->andReturn(new Collection([User::where('name', 'LIKE', "%{$users[0]->name}%")->first()]));
+            ->andReturn($paginatedUsers);
+
         $this->userRepository->shouldReceive('getUsersFiltered')
-            ->with(null, $users[1]->cpf)
+            ->with(null, '12345678901', 2)
             ->once()
-            ->andReturn(new Collection([User::where('cpf', $users[1]->cpf)->first()]));
+            ->andReturn($paginatedUsers);
+
         $this->userRepository->shouldReceive('getUsersFiltered')
-            ->with(null, null)
+            ->with(null, null, 2)
             ->once()
-            ->andReturn(User::all());
+            ->andReturn($paginatedUsers);
 
         // Testa com filtro por nome
-        $resultByName = $this->userService->listUsers($users[0]->name);
-        $this->assertInstanceOf(Collection::class, $resultByName);
-        $this->assertCount(1, $resultByName);
-        $this->assertEquals($users[0]->name, $resultByName->first()->name);
+        $resultByName = $this->userService->listUsers('Test Name', null, 2);
+        $this->assertInstanceOf(LengthAwarePaginator::class, $resultByName);
+        $this->assertCount(5, $resultByName->items());
 
         // Testa com filtro por CPF
-        $resultByCpf = $this->userService->listUsers(null, $users[1]->cpf);
-        $this->assertInstanceOf(Collection::class, $resultByCpf);
-        $this->assertCount(1, $resultByCpf);
-        $this->assertEquals($users[1]->name, $resultByCpf->first()->name);
+        $resultByCpf = $this->userService->listUsers(null, '12345678901', 2);
+        $this->assertInstanceOf(LengthAwarePaginator::class, $resultByCpf);
+        $this->assertCount(5, $resultByCpf->items());
 
         // Testa sem filtros
-        $resultAll = $this->userService->listUsers();
-        $this->assertInstanceOf(Collection::class, $resultAll);
-        $this->assertCount($currentTotal + 2, $resultAll);
+        $resultAll = $this->userService->listUsers(null, null, 2);
+        $this->assertInstanceOf(LengthAwarePaginator::class, $resultAll);
+        $this->assertCount(5, $resultAll->items());
     }
 }
