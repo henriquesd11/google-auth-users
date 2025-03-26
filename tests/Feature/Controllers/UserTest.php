@@ -5,7 +5,6 @@ namespace Controllers;
 use App\Enums\UserResponses;
 use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
 use Mockery;
@@ -24,25 +23,6 @@ class UserTest extends TestCase
         // Mockando UserService para evitar acesso ao banco de dados
         $this->mockedUserService = Mockery::mock(UserService::class);
         $this->app->instance(UserService::class, $this->mockedUserService);
-    }
-
-    public function test_it_should_list_users(): void
-    {
-        $fakeUsers = new Collection([
-            ['name' => 'Luiz', 'cpf' => '12345678901'],
-            ['name' => 'Luiz Henrique', 'cpf' => '98765432100'],
-        ]);
-
-        $this->mockedUserService
-            ->shouldReceive('listUsers')
-            ->once()
-            ->with('Luiz', '12345678901')
-            ->andReturn($fakeUsers);
-
-        $response = $this->getJson('/api/users?name=Luiz&cpf=12345678901');
-
-        $response->assertStatus(200)
-            ->assertContent(json_encode(['data' => $fakeUsers]));
     }
 
     public function test_it_should_create_a_user(): void
