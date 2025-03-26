@@ -2,10 +2,10 @@
 
 namespace Controllers;
 
-use App\Enums\GoogleResponses;
 use App\Models\PendingUsers;
 use App\Services\GoogleAuthService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\Response;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Mockery;
@@ -30,7 +30,7 @@ class GoogleOAuthTest extends TestCase
         $response = $this->getJson('/api/google/login');
 
         // Verifica se o JSON contém a URL de login esperada
-        $response->assertStatus(200)
+        $response->assertStatus(Response::HTTP_OK)
             ->assertJson([
                 'url' => 'https://accounts.google.com/o/oauth2/auth?mocked_url',
             ]);
@@ -66,14 +66,8 @@ class GoogleOAuthTest extends TestCase
         $response = $this->getJson('/api/google/callback');
 
         // 5️⃣ Valida se a resposta está correta
-        $response->assertStatus(200)
-            ->assertJson([
-                'message' => GoogleResponses::SUCCESS,
-                'pending_user' => [
-                    'email' => 'teste@teste.com',
-                    'google_id' => 'google123',
-                ],
-            ]);
+        $response->assertStatus(Response::HTTP_FOUND)
+            ->assertRedirect('http://localhost:5173/register?' . http_build_query($mockedPendingUser->toArray()));
     }
 
 }
