@@ -2,11 +2,9 @@
 
 namespace App\Services;
 
-use App\Enums\UserResponses;
+use App\Jobs\SendRegistrationEmail;
 use App\Models\PendingUsers;
 use App\Repositories\UserRepository;
-use Exception;
-use Illuminate\Http\Response;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use App\Models\User;
 
@@ -33,7 +31,10 @@ class GoogleAuthService
             return $pendingUser;
         }
 
-        return $this->userRepository->createPendingUser($socialiteUser);
+        $user = $this->userRepository->createPendingUser($socialiteUser);
+        SendRegistrationEmail::dispatch($socialiteUser->email);
+
+        return $user;
     }
 
     private function ifUserExists(SocialiteUser $socialiteUser): ?User
