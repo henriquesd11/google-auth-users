@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\GoogleAuthService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Laravel\Socialite\Facades\Socialite;
 use App\Enums\GoogleResponses;
@@ -27,9 +28,15 @@ class GoogleOAuthController extends Controller
         ]);
     }
 
-    public function callback(): JsonResponse | \Illuminate\Http\RedirectResponse
+    public function callback(Request $request): JsonResponse | \Illuminate\Http\RedirectResponse
     {
         try {
+            if ($request->has('error')) {
+                return redirect(
+                    env('FRONTEND_URL')
+                );
+            }
+
             $googleUser = Socialite::driver('google')->stateless()->user();
 
             $user = $this->googleAuthService->handleGoogleCallback($googleUser);
@@ -37,7 +44,6 @@ class GoogleOAuthController extends Controller
             $query = http_build_query($user->only(['email', 'google_id']));
             $endpoint = '/register?' . $query;
             if ($user instanceof \App\Models\User) {
-
                 $endpoint = '/users';
             }
 
