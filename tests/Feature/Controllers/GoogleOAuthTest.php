@@ -69,7 +69,7 @@ class GoogleOAuthTest extends TestCase
         // 5️⃣ Valida se a resposta está correta
         $response->assertStatus(Response::HTTP_FOUND)
             ->assertRedirect(
-                'http://localhost:3000/register?' . http_build_query($mockedPendingUser->only(
+                env('FRONTEND_URL') . '/register?' . http_build_query($mockedPendingUser->only(
                     [
                         'email', 'google_id'
                     ])

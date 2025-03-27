@@ -9,19 +9,38 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
+/**
+ * Class SendRegistrationEmail
+ *
+ * Job responsável por enviar um email de confirmação de cadastro.
+ *
+ * @package App\Jobs
+ */
 class SendRegistrationEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $email;
+    /**
+     * Email do usuário.
+     *
+     * @var string
+     */
+    protected string $email;
 
+    /**
+     * Construtor do SendRegistrationEmail.
+     *
+     * @param string $email
+     */
     public function __construct(string $email)
     {
         $this->email = $email;
     }
 
     /**
-     * Execute the job.
+     * Executa o job.
+     *
+     * @return void
      */
     public function handle(): void
     {

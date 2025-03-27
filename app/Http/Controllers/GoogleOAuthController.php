@@ -9,15 +9,37 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Enums\GoogleResponses;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * Class GoogleOAuthController
+ *
+ * Controlador responsável pela autenticação via Google OAuth.
+ *
+ * @package App\Http\Controllers
+ */
 class GoogleOAuthController extends Controller
 {
+    /**
+     * Serviço de autenticação do Google.
+     *
+     * @var GoogleAuthService
+     */
     private GoogleAuthService $googleAuthService;
 
+    /**
+     * Construtor do GoogleOAuthController.
+     *
+     * @param GoogleAuthService $googleAuthService
+     */
     public function __construct(GoogleAuthService $googleAuthService)
     {
         $this->googleAuthService = $googleAuthService;
     }
 
+    /**
+     * Redireciona para o Google para autenticação.
+     *
+     * @return JsonResponse
+     */
     public function redirectToGoogle(): JsonResponse
     {
         return response()->json([
@@ -28,6 +50,12 @@ class GoogleOAuthController extends Controller
         ]);
     }
 
+    /**
+     * Lida com o callback do Google.
+     *
+     * @param Request $request
+     * @return JsonResponse|\Illuminate\Http\RedirectResponse
+     */
     public function callback(Request $request): JsonResponse | \Illuminate\Http\RedirectResponse
     {
         try {

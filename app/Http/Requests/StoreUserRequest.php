@@ -4,8 +4,20 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Class StoreUserRequest
+ *
+ * Request responsável por validar os dados de criação de um usuário.
+ *
+ * @package App\Http\Requests
+ */
 class StoreUserRequest extends FormRequest
 {
+    /**
+     * Regras de validação para a criação de um usuário.
+     *
+     * @return array
+     */
     public function rules(): array
     {
         return [
@@ -17,6 +29,11 @@ class StoreUserRequest extends FormRequest
         ];
     }
 
+    /**
+     * Mensagens de erro personalizadas para validação.
+     *
+     * @return array
+     */
     public function messages(): array
     {
         return [
